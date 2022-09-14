@@ -219,13 +219,15 @@ cp RootCA.crt /vagrant/
 ### Решение:
 
 1. Создаем директорию для хранения сертификатов
+
+```
 sudo mkdir /etc/nginx/ssl
-
 sudo cp private.pem /etc/nginx/ssl/private.pem
-
 sudo cp cert.crt /etc/nginx/ssl/cert.crt
+```
 
 2. Редактируем конфигурацию стандартной страницы
+
 ```
 nano /etc/nginx/sites-available/default
 server {
@@ -236,6 +238,7 @@ server {
 	ssl_protocols       TLSv1 TLSv1.1 TLSv1.2;
 	ssl_ciphers         HIGH:!aNULL:!MD5;
 ```
+
 3. Сохраняем и перезапускаем сервис
 sudo systemctl restart nginx
 

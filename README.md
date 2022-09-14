@@ -226,7 +226,7 @@ sudo cp private.pem /etc/nginx/ssl/private.pem
 sudo cp cert.crt /etc/nginx/ssl/cert.crt
 
 2. Редактируем конфигурацию стандартной страницы
-3. 
+```
 nano /etc/nginx/sites-available/default
 server {
 	listen				443 ssl;
@@ -235,7 +235,7 @@ server {
 	ssl_certificate_key /etc/nginx/ssl/private.pem;
 	ssl_protocols       TLSv1 TLSv1.1 TLSv1.2;
 	ssl_ciphers         HIGH:!aNULL:!MD5;
-
+```
 3. Сохраняем и перезапускаем сервис
 sudo systemctl restart nginx
 

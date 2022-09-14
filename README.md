@@ -102,6 +102,8 @@ Anywhere (v6) on lo        ALLOW IN    Anywhere (v6)
 
 3. Установите hashicorp vault ([инструкция по ссылке](https://learn.hashicorp.com/tutorials/vault/getting-started-install?in=vault/getting-started#install-vault)).
 
+### Решение:
+
 Устанавливаем по инструкции с сайта 
 
 ```
@@ -115,8 +117,29 @@ sudo apt update && sudo apt install vault
 
 ![img.png](https://github.com/nalevov/DO-NETOLOGY/blob/main/%D0%97%D0%B0%D0%B4%D0%B0%D0%BD%D0%B8%D0%B5%203.2.png)
 
+## Задание 
 
 4. Cоздайте центр сертификации по инструкции ([ссылка](https://learn.hashicorp.com/tutorials/vault/pki-engine?in=vault/secrets-management)) и выпустите сертификат для использования его в настройке веб-сервера nginx (срок жизни сертификата - месяц).
+
+### Решение:
+
+1. Создамем по инструкции
+```
+sudo apt -y install jq
+vault server -dev -dev-root-token-id root
+```
+![img.png](https://github.com/nalevov/DO-NETOLOGY/blob/main/%D0%97%D0%B0%D0%B4%D0%B0%D0%BD%D0%B8%D0%B5%204.1.png)
+
+2. Открываем дополнительный терминал 
+
+```
+export VAULT_ADDR=http://127.0.0.1:8200
+export VAULT_TOKEN=root
+```
+3. Создаем сертификаты 
+
+![img.png](https://github.com/nalevov/DO-NETOLOGY/blob/main/%D0%97%D0%B0%D0%B4%D0%B0%D0%BD%D0%B8%D0%B5%204.2.png)
+
 5. Установите корневой сертификат созданного центра сертификации в доверенные в хостовой системе.
 6. Установите nginx.
 7. По инструкции ([ссылка](https://nginx.org/en/docs/http/configuring_https_servers.html)) настройте nginx на https, используя ранее подготовленный сертификат:

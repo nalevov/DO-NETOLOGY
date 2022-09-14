@@ -220,10 +220,13 @@ cp RootCA.crt /vagrant/
 
 1. Создаем директорию для хранения сертификатов
 sudo mkdir /etc/nginx/ssl
+
 sudo cp private.pem /etc/nginx/ssl/private.pem
+
 sudo cp cert.crt /etc/nginx/ssl/cert.crt
 
 2. Редактируем конфигурацию стандартной страницы
+3. 
 nano /etc/nginx/sites-available/default
 server {
 	listen				443 ssl;

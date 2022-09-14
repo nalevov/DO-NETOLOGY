@@ -177,7 +177,22 @@ cat vault.netology.devops.crt | jq -r '.data.ca_chain[]' >> cert.crt
 
 ![img.png](https://github.com/nalevov/DO-NETOLOGY/blob/main/%D0%97%D0%B0%D0%B4%D0%B0%D0%BD%D0%B8%D0%B5%204.2.png)
 
+
+## Задание 
+
 5. Установите корневой сертификат созданного центра сертификации в доверенные в хостовой системе.
+
+### Решение:
+
+# Скопируем сертификат в общую папку
+
+```
+cp RootCA.crt /vagrant/
+```
+
+# В консоли Сертификаты импортируем сертификат из общей папки
+
+![img.png](https://github.com/nalevov/DO-NETOLOGY/blob/main/%D0%97%D0%B0%D0%B4%D0%B0%D0%BD%D0%B8%D0%B5%205.png)
 
 ## Задание
 
@@ -189,23 +204,67 @@ cat vault.netology.devops.crt | jq -r '.data.ca_chain[]' >> cert.crt
 
 ![img.png](https://github.com/nalevov/DO-NETOLOGY/blob/main/%D0%97%D0%B0%D0%B4%D0%B0%D0%BD%D0%B8%D0%B5%206.png)
 
+## Задание
 
-8. По инструкции ([ссылка](https://nginx.org/en/docs/http/configuring_https_servers.html)) настройте nginx на https, используя ранее подготовленный сертификат:
+7. По инструкции ([ссылка](https://nginx.org/en/docs/http/configuring_https_servers.html)) настройте nginx на https, используя ранее подготовленный сертификат:
   - можно использовать стандартную стартовую страницу nginx для демонстрации работы сервера;
   - можно использовать и другой html файл, сделанный вами;
-9. Откройте в браузере на хосте https адрес страницы, которую обслуживает сервер nginx.
-10. Создайте скрипт, который будет генерировать новый сертификат в vault:
+
+### Решение:
+
+# Создаем директорию для хранения сертификатов
+sudo mkdir /etc/nginx/ssl
+sudo cp private.pem /etc/nginx/ssl/private.pem
+sudo cp cert.crt /etc/nginx/ssl/cert.crt
+# Редактируем конфигурацию стандартной страницы
+nano /etc/nginx/sites-available/default
+server {
+	listen				443 ssl;
+	server_name         vault.netology.devops;
+ 	ssl_certificate     /etc/nginx/ssl/cert.crt;
+	ssl_certificate_key /etc/nginx/ssl/private.pem;
+	ssl_protocols       TLSv1 TLSv1.1 TLSv1.2;
+	ssl_ciphers         HIGH:!aNULL:!MD5;
+
+# Сохраняем и перезапускаем сервис
+sudo systemctl restart nginx
+
+![img.png](https://github.com/nalevov/DO-NETOLOGY/blob/main/%D0%97%D0%B0%D0%B4%D0%B0%D0%BD%D0%B8%D0%B5%207.png)
+
+## Задание
+
+8. Откройте в браузере на хосте https адрес страницы, которую обслуживает сервер nginx.
+
+### Решение:
+
+1. В файл C:\Windows\System32\drivers\etc\hosts добавим запись 127.0.0.1 vault.netology.devops
+
+2. Откроем в браузере на хосте https адрес страницы, которую обслуживает сервер nginx.
+
+![img.png](https://github.com/nalevov/DO-NETOLOGY/blob/main/%D0%97%D0%B0%D0%B4%D0%B0%D0%BD%D0%B8%D0%B5%208.png)
+
+## Задание
+
+9. Создайте скрипт, который будет генерировать новый сертификат в vault:
   - генерируем новый сертификат так, чтобы не переписывать конфиг nginx;
   - перезапускаем nginx для применения нового сертификата.
-11. Поместите скрипт в crontab, чтобы сертификат обновлялся какого-то числа каждого месяца в удобное для вас время.
 
-## Результат
+### Решение:
 
-Результатом курсовой работы должны быть снимки экрана или текст:
+![img.png](https://github.com/nalevov/DO-NETOLOGY/blob/main/%D0%97%D0%B0%D0%B4%D0%B0%D0%BD%D0%BD%D0%B8%D0%B5%209.png)
 
-- Процесс установки и настройки ufw
-- Процесс установки и выпуска сертификата с помощью hashicorp vault
-- Процесс установки и настройки сервера nginx
-- Страница сервера nginx в браузере хоста не содержит предупреждений 
-- Скрипт генерации нового сертификата работает (сертификат сервера ngnix должен быть "зеленым")
-- Crontab работает (выберите число и время так, чтобы показать что crontab запускается и делает что надо)
+## Задание
+
+10. Поместите скрипт в crontab, чтобы сертификат обновлялся какого-то числа каждого месяца в удобное для вас время.
+
+### Решение:
+
+1. Помещаем скрипт в crontab
+
+![img.png](https://github.com/nalevov/DO-NETOLOGY/blob/main/%D0%97%D0%B0%D0%B4%D0%B0%D0%BD%D0%B8%D0%B5%2010.png)
+
+2. Для наглядности выбрали, чтобы сприпт выполнялся каждые 2 минуты
+
+![img.png](https://github.com/nalevov/DO-NETOLOGY/blob/main/%D0%97%D0%B0%D0%B4%D0%B0%D0%BD%D0%B8%D0%B5%2010.1.png)
+
+![img.png](https://github.com/nalevov/DO-NETOLOGY/blob/main/%D0%97%D0%B0%D0%B4%D0%B0%D0%BD%D0%B8%D0%B5%2010.2.png)

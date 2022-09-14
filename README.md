@@ -123,7 +123,7 @@ sudo apt update && sudo apt install vault
 
 ### Решение:
 
-1. Создамем по инструкции
+1. Создаем по инструкции
 ```
 sudo apt -y install jq
 vault server -dev -dev-root-token-id root
@@ -138,18 +138,66 @@ export VAULT_TOKEN=root
 ```
 3. Создаем сертификаты 
 
+>Создание Root CA
+```
+# Включение механизма секретов pki в пути pki_root
+vault secrets enable -path=pki_root pki
+# Установка времени жизни для сертификатов 
+vault secrets tune -max-lease-ttl=87600h pki_root
+# Создание корневого сертификата
+vault write -field=certificate pki_root/root/generate/internal common_name="netology.devops" ttl=87600h > RootCA.crt
+# Добавление URL адреса CA и точку распределения
+vault write pki_root/config/urls issuing_certificates="$VAULT_ADDR/v1/pki/ca" crl_distribution_points="$VAULT_ADDR/v1/pki/crl"
+```
+
+>Добавление промежуточного СА
+```
+vault secrets enable -path=pki_intermediate pki
+# Установка время жизни для сертификатов 
+vault secrets tune -max-lease-ttl=43800h pki_intermediate
+# Генерируем CSR
+vault write -format=json pki_intermediate/intermediate/generate/internal common_name="netology.devops Intermediate CA" | jq -r '.data.csr' > IntermediateCA.csr
+# Подпишем закрытым ключом RootCA промежуточный сертификат и сохраним
+vault write -format=json pki_root/root/sign-intermediate csr=@IntermediateCA.csr format=pem_bundle ttl="43800h" | jq -r '.data.certificate' > IntermediateCA.pem
+# После того, как CSR подписан и получен сертификат, последний можно испортировать обратно в Vault
+vault write pki_intermediate/intermediate/set-signed certificate=@IntermediateCA.pem
+```
+
+>Роль и выпуск сертификата
+```
+# Добавить роль, которая разрешает поддомены netology.devops сроком жизни до 30 дней
+vault write pki_intermediate/roles/netology-dot-devops allowed_domains="netology.devops" allow_subdomains=true max_ttl="720h"
+# Создать сертификат на 30 дней для доменного имени vault.netology.devops
+vault write -format=json pki_intermediate/issue/netology-dot-devops common_name="vault.netology.devops" alt_names="vault.netology.devops" > vault.netology.devops.crt
+# Сохраняем сертификат в правильном формате
+cat vault.netology.devops.crt | jq -r '.data.private_key' > private.pem
+cat vault.netology.devops.crt | jq -r '.data.certificate' > cert.crt
+cat vault.netology.devops.crt | jq -r '.data.ca_chain[]' >> cert.crt
+```
+
 ![img.png](https://github.com/nalevov/DO-NETOLOGY/blob/main/%D0%97%D0%B0%D0%B4%D0%B0%D0%BD%D0%B8%D0%B5%204.2.png)
 
 5. Установите корневой сертификат созданного центра сертификации в доверенные в хостовой системе.
+
+## Задание
+
 6. Установите nginx.
-7. По инструкции ([ссылка](https://nginx.org/en/docs/http/configuring_https_servers.html)) настройте nginx на https, используя ранее подготовленный сертификат:
+
+### Решение:
+
+`sudo apt install nginx`
+
+![img.png](https://github.com/nalevov/DO-NETOLOGY/blob/main/%D0%97%D0%B0%D0%B4%D0%B0%D0%BD%D0%B8%D0%B5%206.png)
+
+
+8. По инструкции ([ссылка](https://nginx.org/en/docs/http/configuring_https_servers.html)) настройте nginx на https, используя ранее подготовленный сертификат:
   - можно использовать стандартную стартовую страницу nginx для демонстрации работы сервера;
   - можно использовать и другой html файл, сделанный вами;
-8. Откройте в браузере на хосте https адрес страницы, которую обслуживает сервер nginx.
-9. Создайте скрипт, который будет генерировать новый сертификат в vault:
+9. Откройте в браузере на хосте https адрес страницы, которую обслуживает сервер nginx.
+10. Создайте скрипт, который будет генерировать новый сертификат в vault:
   - генерируем новый сертификат так, чтобы не переписывать конфиг nginx;
   - перезапускаем nginx для применения нового сертификата.
-10. Поместите скрипт в crontab, чтобы сертификат обновлялся какого-то числа каждого месяца в удобное для вас время.
+11. Поместите скрипт в crontab, чтобы сертификат обновлялся какого-то числа каждого месяца в удобное для вас время.
 
 ## Результат
 

@@ -263,8 +263,52 @@ sudo systemctl restart nginx
   - перезапускаем nginx для применения нового сертификата.
 
 ### Решение:
+```
+#!/bin/env python3
+import OpenSSL,sys,os,json
+from datetime import datetime
+
+CRT_PATH = '/etc/nginx/ssl/cert.crt'
+KEY_PATH = '/etc/nginx/ssl/private.pem'
+
+def get_cert_expiredate(path):
+    with open(path, 'rb') as fp:
+        cert = fp.read()
+
+    x509 = (OpenSSL.crypto.load_certificate(OpenSSL.crypto.FILETYPE_PEM, cert)).get_notAfter()
+    return datetime.strptime(x509.decode("utf-8"),"%Y%m%d%H%M%SZ")
+
+def write_file(data,path):
+    file = open(path,"w")
+    file.write(data)
+    file.close
+
+def err(msg: str):
+    write_file(msg,'/home/vagrant/log.log')
+    sys.exit(1)
+
+exp_dt = get_cert_expiredate(CRT_PATH)
+
+result = (exp_dt - datetime.now()).total_seconds() // 3600
+
+print(f'{result} hours left until expiration')
+
+if (result < 1000):
+    try:
+        data_json = json.loads(os.popen("vault write -format=json pki_intermediate/issue/netology-dot-devops common_name='vault.netology.devops' alt_names='vault.netology.devops'").read())
+        private_key = data_json['data']['private_key']
+        public_key = data_json['data']['certificate'] + "\n" + data_json["data"]['ca_chain'][0]
+
+        write_file(private_key,KEY_PATH)
+        write_file(public_key,CRT_PATH)
+
+        os.popen("systemctl restart nginx")
+    except Exception as e:
+        print(e)
+        err(f"error {e}\n")
 
 ![img.png](https://github.com/nalevov/DO-NETOLOGY/blob/main/%D0%97%D0%B0%D0%B4%D0%B0%D0%BD%D0%BD%D0%B8%D0%B5%209.png)
+```
 
 # Задание:
 

@@ -263,6 +263,9 @@ sudo systemctl restart nginx
   - перезапускаем nginx для применения нового сертификата.
 
 ### Решение:
+
+Создаем скрипт `sudo nano /home/vagrant/5.py` со следующим содержанием
+
 ```
 #!/bin/env python3
 import OpenSSL,sys,os,json
@@ -316,11 +319,20 @@ if (result < 1000):
 
 ### Решение:
 
-1. Помещаем скрипт в crontab
+1. Помещаем скрипт в crontab `sudo crontab -e` 
 
+Для наглядности выбрали, чтобы сприпт выполнялся каждые 2 минуты
+
+```
+VAULT_ADDR=http://127.0.0.1:8200
+VAULT_TOKEN=root
+
+35 * * * * /usr/bin/python3 /home/vagrant/5.py
+
+```
 ![img.png](https://github.com/nalevov/DO-NETOLOGY/blob/main/%D0%97%D0%B0%D0%B4%D0%B0%D0%BD%D0%B8%D0%B5%2010.png)
 
-2. Для наглядности выбрали, чтобы сприпт выполнялся каждые 2 минуты
+2. 
 
 ![img.png](https://github.com/nalevov/DO-NETOLOGY/blob/main/%D0%97%D0%B0%D0%B4%D0%B0%D0%BD%D0%B8%D0%B5%2010.1.png)
 

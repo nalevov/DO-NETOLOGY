@@ -327,12 +327,12 @@ if (result < 1000):
 VAULT_ADDR=http://127.0.0.1:8200
 VAULT_TOKEN=root
 
-35 * * * * /usr/bin/python3 /home/vagrant/5.py
+*/2**** /usr/bin/python3 /home/vagrant/5.py
 
 ```
 ![img.png](https://github.com/nalevov/DO-NETOLOGY/blob/main/%D0%97%D0%B0%D0%B4%D0%B0%D0%BD%D0%B8%D0%B5%2010.png)
 
-2. 
+2. В итоге получаем:
 
 ![img.png](https://github.com/nalevov/DO-NETOLOGY/blob/main/%D0%97%D0%B0%D0%B4%D0%B0%D0%BD%D0%B8%D0%B5%2010.1.png)
 
